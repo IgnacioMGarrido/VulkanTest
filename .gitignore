@@ -1,0 +1,31 @@
+# gitignore for C++
+# Compiled Object files
+*.sln
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Visual Studio Files
+Debug
+Release
+VulkanTest/Debug
+VulkanTest/Release
+VulkanTest/x64
+.vs
+*.suo
+*.csproj.user
+*.vbproj.user
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+ipch
+*sdf
