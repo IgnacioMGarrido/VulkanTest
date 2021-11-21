@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <optional>
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
@@ -56,6 +57,9 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 }
 
 class HelloTriangleApplication {
+
+
+
 public:
     void run() {
         initWindow();
@@ -65,6 +69,43 @@ public:
     }
 
 private:
+
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> graphicsFamily;
+        bool isComplete() 
+        {
+            return graphicsFamily.has_value();
+        }
+    };
+
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device)
+    {
+        QueueFamilyIndices indices;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        int i = 0;
+        for (const auto& queueFamily : queueFamilies) 
+        {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+            {
+                indices.graphicsFamily = i;
+            }
+
+            if (indices.isComplete())
+            {
+                break;
+            }
+            i++;
+        }
+
+        return indices;
+    }
 
     void initWindow()
     {
@@ -79,6 +120,8 @@ private:
         createInstance();
 
         setupMessenger();
+
+        pickPhysicalDevice();
     }
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
@@ -189,7 +232,43 @@ private:
         }
     }
 
+    void pickPhysicalDevice() 
+    {
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
+        if (deviceCount == 0)
+        {
+            throw std::runtime_error("No Graphics Card found");
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
+
+        for (const auto& device : devices) 
+        {
+            if (isDeviceSuitable(device)) 
+            {
+                physicalDevice = device;
+                break;
+            }
+        }
+
+        if (physicalDevice == VK_NULL_HANDLE) 
+        {
+            throw std::runtime_error("Failed to load a suitable GPU");
+        }
+
+
+
+    }
+
+    bool isDeviceSuitable(VkPhysicalDevice device) 
+    {
+        QueueFamilyIndices indices = findQueueFamilies(device);
+
+        return indices.isComplete();
+    }
 
     bool checkValidationLayerSupport()
     {
@@ -238,6 +317,7 @@ private:
     }
 
 private:
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     GLFWwindow* window;
     VkInstance vkInstance;
     VkDebugUtilsMessengerEXT debugMessenger;
