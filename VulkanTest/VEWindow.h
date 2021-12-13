@@ -2,12 +2,13 @@
 #define GLFW_INCLUDE_WINDOW
 #include <GLFW/glfw3.h>
 #include <string>
+
 namespace VE 
 {
     class VEwindow 
     {
     public:
-        VEwindow(std::string name = "Vulkan Experiment", int width = 800, int height = 600);
+        VEwindow(int width = 800, int height = 600, std::string name = "Vulkan Experiment");
         VEwindow(const VEwindow&) = delete;
         VEwindow& operator=(const VEwindow&) = delete;
         ~VEwindow();

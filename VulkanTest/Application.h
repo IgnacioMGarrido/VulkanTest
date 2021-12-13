@@ -1,6 +1,6 @@
 #pragma once
 #include "VEWindow.h"
-
+#include "VEPipeline.h"
 namespace VE 
 {
     class Application
@@ -11,7 +11,8 @@ namespace VE
 
         void Run();
     private:
-        VEwindow m_levelWindow{};
+        VEwindow m_levelWindow{WIDTH,HEIGHT};
+        VEPipeline m_pipeline{ "Shaders/basic_shader.vert.spv", "Shaders/basic_shader.frag.spv" };
     };
 
 }

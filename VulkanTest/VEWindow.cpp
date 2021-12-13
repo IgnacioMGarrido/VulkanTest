@@ -2,7 +2,7 @@
 
 namespace VE 
 {
-    VEwindow::VEwindow(std::string name, int width, int height)
+    VEwindow::VEwindow(int width, int height, std::string name)
         : m_name {name}
         , m_width {width}
         , m_height{ height }
