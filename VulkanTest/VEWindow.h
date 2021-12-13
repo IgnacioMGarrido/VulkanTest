@@ -1,5 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_WINDOW
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -15,9 +15,10 @@ namespace VE
     
         bool ShouldClose();
         void RetreivePollEvents();
+        void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+
     private:
         void InitWindow();
-
     private:
         std::string m_name;
         const int m_width;
