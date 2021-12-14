@@ -23,6 +23,7 @@ namespace VE
         void CreatePipelineLayout();
         void CreatePipeline();
         void CreateCommandBuffers();
+        void FreeCommandBuffers();
         void DrawFrame();
 
         void RecreateSwapChain();

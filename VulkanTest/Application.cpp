@@ -54,6 +54,8 @@ namespace VE
 
     void Application::CreatePipeline()
     {
+        assert(m_SwapChain != nullptr && "Cannot create pipeline before swapChain!");
+        assert(m_pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
         PipelineConfigInfo pipelineConfig = {};
         VEPipeline::DefaultPipelineConfigInfo(pipelineConfig);
 
@@ -73,7 +75,20 @@ namespace VE
 
         vkDeviceWaitIdle(m_device.device());
         m_SwapChain.reset();
-        m_SwapChain = std::make_unique<VESwapChain>(m_device, extent);
+
+        if (m_SwapChain == nullptr) 
+        {
+            m_SwapChain = std::make_unique<VESwapChain>(m_device, extent);
+        }
+        else 
+        {
+            m_SwapChain = std::make_unique<VESwapChain>(m_device, extent, std::move(m_SwapChain));
+            if (m_SwapChain->imageCount() != m_commandBuffers.size()) 
+            {
+                FreeCommandBuffers();
+                CreateCommandBuffers();
+            }
+        }
         CreatePipeline();
     }
 
@@ -90,6 +105,12 @@ namespace VE
         {
             throw std::runtime_error("Failed to allocate Command Buffers!");
         }
+    }
+
+    void Application::FreeCommandBuffers()
+    {
+        vkFreeCommandBuffers(m_device.device(), m_device.getCommandPool(),static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
+        m_commandBuffers.clear();
     }
     
     void Application::DrawFrame()
