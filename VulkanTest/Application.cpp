@@ -9,13 +9,14 @@ namespace VE
 {
     struct SimplePushConstantData //Temporary
     {
+        glm::mat2 transform{1.f};
         glm::vec2 offset;
         alignas(16) glm::vec3 color;
     };
 
     Application::Application()
     {
-        LoadModels();
+        LoadGameObjects();
         CreatePipelineLayout();
         RecreateSwapChain();
         CreateCommandBuffers();
@@ -36,7 +37,7 @@ namespace VE
         vkDeviceWaitIdle(m_device.device()); //block CPU until all GPU operations complete.
     }
     
-    void Application::LoadModels()
+    void Application::LoadGameObjects()
     {
         std::vector<VEModel::Vertex> vertices{
             {{0.0f, -0.5f}, {1.0f,0.0f,0.0f}},
@@ -44,7 +45,14 @@ namespace VE
             {{-0.5f, 0.5f}, {0.0f,0.0f,1.0f}}
         };
 
-        m_model = std::make_unique<VEModel>(m_device, vertices);
+        auto model = std::make_shared<VEModel>(m_device, vertices);
+
+        auto triangle = VEGameObject::CreateGameObject();
+        triangle.m_model = model;
+        triangle.m_color = { .1f, .6f, .1f };
+        triangle.m_transformComponent.m_translataion.x = .2f;
+
+        m_gameObjects.push_back(std::move(triangle));
     }
 
     void Application::CreatePipelineLayout()
@@ -160,8 +168,6 @@ namespace VE
 
     void Application::RecordCommandBuffer(int imageIndex)
     {
-        static int frame = 0;
-        frame = (frame + 1) % 10000;
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -201,26 +207,30 @@ namespace VE
         vkCmdSetViewport(m_commandBuffers[imageIndex], 0, 1, &viewport);
         vkCmdSetScissor(m_commandBuffers[imageIndex], 0, 1, &scissor);
 
-
-        m_pipeline->Bind(m_commandBuffers[imageIndex]); //Bind Graphics pipeline
-        m_model->Bind(m_commandBuffers[imageIndex]); //Bind model that contains vertex data
-
-        for (int j = 0; j < 4; ++j) 
-        {
-            SimplePushConstantData push{};
-            push.offset = { -0.5f + frame * 0.0002f, -0.4f + j * 0.25f };
-            push.color = {0.0f, 0.0f, 0.2f + 0.2f * j};
-
-            vkCmdPushConstants(m_commandBuffers[imageIndex], m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-            m_model->Draw(m_commandBuffers[imageIndex]); //Draw
-
-        }
+        RenderGameObjects(m_commandBuffers[imageIndex]);
 
 
         vkCmdEndRenderPass(m_commandBuffers[imageIndex]);
         if (vkEndCommandBuffer(m_commandBuffers[imageIndex]) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to end recording Command Buffer!");
+        }
+    }
+
+    void Application::RenderGameObjects(VkCommandBuffer commandBuffer)
+    {
+        m_pipeline->Bind(commandBuffer); //Bind Pipeline
+        for (auto& obj : m_gameObjects) 
+        {
+            SimplePushConstantData push{};
+            push.offset = obj.m_transformComponent.m_translataion;
+            push.color = obj.m_color;
+            push.transform = obj.m_transformComponent.mat2();
+
+            vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+            obj.m_model->Bind(commandBuffer); //Bind model that contains vertex data
+
+            obj.m_model->Draw(commandBuffer); //Draw
         }
     }
 }
