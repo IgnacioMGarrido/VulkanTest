@@ -5,6 +5,7 @@ namespace VE
 {
     Application::Application()
     {
+        LoadModels();
         CreatePipelineLayout();
         CreatePipeline();
         CreateCommandBuffers();
@@ -25,6 +26,17 @@ namespace VE
         vkDeviceWaitIdle(m_device.device()); //block CPU until all GPU operations complete.
     }
     
+    void Application::LoadModels()
+    {
+        std::vector<VEModel::Vertex> vertices{
+            {{0.0f, -0.5f}}, 
+            {{0.5f, 0.5f}},
+            {{-0.5f, 0.5f}} 
+        };
+
+        m_model = std::make_unique<VEModel>(m_device, vertices);
+    }
+
     void Application::CreatePipelineLayout()
     {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -92,8 +104,9 @@ namespace VE
             //Biging RenderPAss
             vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            m_pipeline->Bind(m_commandBuffers[i]);
-            vkCmdDraw(m_commandBuffers[i], 3, 1, 0, 0);
+            m_pipeline->Bind(m_commandBuffers[i]); //Bind Graphics pipeline
+            m_model->Bind(m_commandBuffers[i]); //Bind model that contains vertex data
+            m_model->Draw(m_commandBuffers[i]); //Draw
 
             vkCmdEndRenderPass(m_commandBuffers[i]);
             if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS) 

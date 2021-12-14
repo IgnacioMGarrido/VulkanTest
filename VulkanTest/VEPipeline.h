@@ -1,6 +1,6 @@
 #pragma once
 #include "VEdevice.h"
-
+#include "VEModel.h"
 #include <string>
 #include <vector>
 namespace VE {

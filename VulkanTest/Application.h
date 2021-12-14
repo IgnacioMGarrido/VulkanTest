@@ -3,7 +3,7 @@
 #include "VEPipeline.h"
 #include "VEdevice.h"
 #include "VESwapChain.h"
-
+#include "VEModel.h"
 #include <memory>
 #include <vector>
 namespace VE 
@@ -19,6 +19,7 @@ namespace VE
         Application& operator=(const Application&) = delete;
         void Run();
     private:
+        void LoadModels();
         void CreatePipelineLayout();
         void CreatePipeline();
         void CreateCommandBuffers();
@@ -31,6 +32,7 @@ namespace VE
         std::unique_ptr<VEPipeline> m_pipeline;
         VkPipelineLayout m_pipelineLayout;
         std::vector<VkCommandBuffer> m_commandBuffers;
+        std::unique_ptr<VEModel> m_model;
     };
 
 }

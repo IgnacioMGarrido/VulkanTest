@@ -501,7 +501,10 @@ namespace VE {
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        vkBindBufferMemory(device_, buffer, bufferMemory, 0);
+        if (vkBindBufferMemory(device_, buffer, bufferMemory, 0) != VK_SUCCESS) 
+        {
+            throw std::runtime_error("failed to bind vertex buffer memory!");
+        }
     }
 
     VkCommandBuffer VEDevice::beginSingleTimeCommands()
