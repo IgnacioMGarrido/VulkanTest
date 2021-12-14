@@ -9,8 +9,17 @@ namespace VE
     struct Transform2dComponent 
     {
         glm::vec2 m_translataion{};
+        glm::vec2 m_scale{1.f,1.f};
+        float m_rotation;
 
-        glm::mat2 mat2() { return glm::mat2{ 1.0f }; }
+        glm::mat2 mat2() { 
+            const float s = glm::sin(m_rotation);
+            const float c = glm::cos(m_rotation);
+            glm::mat2 rotMatrix{ {c, s}, {-s, c} };
+
+            glm::mat2 scaleMat{ {m_scale.x, 0.f}, {0.f, m_scale.y} };
+            return rotMatrix * scaleMat;
+        }
     };
     class VEGameObject
     {

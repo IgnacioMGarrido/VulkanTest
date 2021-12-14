@@ -2,6 +2,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
 #include <array>
@@ -50,7 +51,9 @@ namespace VE
         auto triangle = VEGameObject::CreateGameObject();
         triangle.m_model = model;
         triangle.m_color = { .1f, .6f, .1f };
-        triangle.m_transformComponent.m_translataion.x = .2f;
+        triangle.m_transformComponent.m_translataion.x = .0f;
+        triangle.m_transformComponent.m_scale = { 1.0f, 1.0f };
+        triangle.m_transformComponent.m_rotation = .25f * glm::two_pi<float>();
 
         m_gameObjects.push_back(std::move(triangle));
     }
@@ -222,6 +225,7 @@ namespace VE
         m_pipeline->Bind(commandBuffer); //Bind Pipeline
         for (auto& obj : m_gameObjects) 
         {
+            obj.m_transformComponent.m_rotation = glm::mod(obj.m_transformComponent.m_rotation + 0.0001f, glm::two_pi<float>());
             SimplePushConstantData push{};
             push.offset = obj.m_transformComponent.m_translataion;
             push.color = obj.m_color;
