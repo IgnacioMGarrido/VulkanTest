@@ -7,7 +7,16 @@ namespace VE {
 
     struct PipelineConfigInfo 
     {
-    
+        VkViewport viewport; //Transformation between pipeline's output and target image
+        VkRect2D scissors; //Pixels outside this rectangle will be discarded
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+        VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+        VkPipelineMultisampleStateCreateInfo multisampleInfo;
+        VkPipelineColorBlendAttachmentState colorBlendAttachment;
+        VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        VkPipelineLayout pipelineLayout = nullptr;
+        VkRenderPass renderPass = nullptr;
+        uint32_t subpass = 0;
     };
 
     class VEPipeline
@@ -25,7 +34,7 @@ namespace VE {
 
         static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);
 
-        ~VEPipeline() {};
+        ~VEPipeline();
     
     private:
         static std::vector<char> ReadFile(const std::string& filePath);

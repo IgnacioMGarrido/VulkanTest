@@ -16,7 +16,7 @@ namespace VE
         bool ShouldClose();
         void RetreivePollEvents();
         void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
-
+        VkExtent2D GetExtent();
     private:
         void InitWindow();
     private:

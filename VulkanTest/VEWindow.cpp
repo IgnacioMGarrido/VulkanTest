@@ -33,6 +33,11 @@ namespace VE
         }
     }
 
+    VkExtent2D VEwindow::GetExtent()
+    {
+        return {static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)};
+    }
+
     bool VEwindow::ShouldClose()
     {
         return glfwWindowShouldClose(m_window);
