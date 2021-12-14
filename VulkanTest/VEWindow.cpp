@@ -16,13 +16,23 @@ namespace VE
         glfwTerminate();
     }
 
+    void VEwindow::FrameBufferResizedCallback(GLFWwindow* window, int width, int height)
+    {
+        auto veWindow = reinterpret_cast<VEwindow*>(glfwGetWindowUserPointer(window));
+        veWindow->m_frameBufferResized = true;
+        veWindow->m_width = width;
+        veWindow->m_height = height;
+    }
+
     void VEwindow::InitWindow()
     {
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     
         m_window = glfwCreateWindow(m_width, m_height, m_name.c_str(), nullptr, nullptr);
+        glfwSetWindowUserPointer(m_window, this);
+        glfwSetFramebufferSizeCallback(m_window, FrameBufferResizedCallback);
     }
 
     void VEwindow::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface)

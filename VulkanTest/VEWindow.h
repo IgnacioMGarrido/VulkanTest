@@ -14,15 +14,19 @@ namespace VE
         ~VEwindow();
     
         bool ShouldClose();
+        bool WasWindowResized() { return m_frameBufferResized; };
+        void ResetWindowResizedFlag() { m_frameBufferResized = false; }
         void RetreivePollEvents();
         void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
         VkExtent2D GetExtent();
     private:
+        static void FrameBufferResizedCallback(GLFWwindow* window, int width, int height);
         void InitWindow();
     private:
         std::string m_name;
-        const int m_width;
-        const int m_height;
+        int m_width;
+        int m_height;
+        bool m_frameBufferResized = false;
         GLFWwindow* m_window = nullptr;
     };
 }

@@ -24,11 +24,13 @@ namespace VE
         void CreatePipeline();
         void CreateCommandBuffers();
         void DrawFrame();
+
+        void RecreateSwapChain();
+        void RecordCommandBuffer(int imageIndex);
     private:
         VEwindow m_levelWindow{WIDTH,HEIGHT};
         VEDevice m_device{ m_levelWindow };
-        VESwapChain m_SwapChain{ m_device, m_levelWindow.GetExtent() };
-        //VEPipeline m_pipeline{m_device, "Shaders/basic_shader.vert.spv", "Shaders/basic_shader.frag.spv", VEPipeline::DefaultPipelineConfigInfo(WIDTH, HEIGHT) };
+        std::unique_ptr<VESwapChain> m_SwapChain;
         std::unique_ptr<VEPipeline> m_pipeline;
         VkPipelineLayout m_pipelineLayout;
         std::vector<VkCommandBuffer> m_commandBuffers;
