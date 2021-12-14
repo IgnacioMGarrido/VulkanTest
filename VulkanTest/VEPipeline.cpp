@@ -84,18 +84,6 @@ namespace VE
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
-
-        VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
-        colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlendInfo.logicOpEnable = VK_FALSE;
-        colorBlendInfo.logicOp = VK_LOGIC_OP_COPY;
-        colorBlendInfo.attachmentCount = 1;
-        colorBlendInfo.pAttachments = &info.colorBlendAttachment;
-        colorBlendInfo.blendConstants[0] = 0.0f;
-        colorBlendInfo.blendConstants[1] = 0.0f;
-        colorBlendInfo.blendConstants[2] = 0.0f;
-        colorBlendInfo.blendConstants[3] = 0.0f;
-
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = 2;
@@ -105,7 +93,7 @@ namespace VE
         pipelineInfo.pViewportState = &info.viewportInfo;
         pipelineInfo.pRasterizationState = &info.rasterizationInfo;
         pipelineInfo.pMultisampleState = &info.multisampleInfo;
-        pipelineInfo.pColorBlendState = &colorBlendInfo;
+        pipelineInfo.pColorBlendState = &info.colorBlendInfo;
         pipelineInfo.pDepthStencilState = &info.depthStencilInfo;
         pipelineInfo.pDynamicState = &info.dynamicStateInfo;
 
@@ -190,6 +178,16 @@ namespace VE
         configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        configInfo.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        configInfo.colorBlendInfo.logicOpEnable = VK_FALSE;
+        configInfo.colorBlendInfo.logicOp = VK_LOGIC_OP_COPY;
+        configInfo.colorBlendInfo.attachmentCount = 1;
+        configInfo.colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
+        configInfo.colorBlendInfo.blendConstants[0] = 0.0f;
+        configInfo.colorBlendInfo.blendConstants[1] = 0.0f;
+        configInfo.colorBlendInfo.blendConstants[2] = 0.0f;
+        configInfo.colorBlendInfo.blendConstants[3] = 0.0f;
 
         //4 - Depth Buffer - keeps track of the depth value for each pixel
         configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
