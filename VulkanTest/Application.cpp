@@ -54,7 +54,8 @@ namespace VE
 
     void Application::CreatePipeline()
     {
-        auto pipelineConfig = VEPipeline::DefaultPipelineConfigInfo(m_SwapChain->width(), m_SwapChain->height());
+        PipelineConfigInfo pipelineConfig = {};
+        VEPipeline::DefaultPipelineConfigInfo(pipelineConfig);
 
         pipelineConfig.renderPass = m_SwapChain->getRenderPass();
         pipelineConfig.pipelineLayout = m_pipelineLayout;
@@ -149,6 +150,19 @@ namespace VE
 
         //Biging RenderPAss
         vkCmdBeginRenderPass(m_commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(m_SwapChain->getSwapChainExtent().width);
+        viewport.height = static_cast<float>(m_SwapChain->getSwapChainExtent().height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+
+        VkRect2D scissor{ {0,0}, m_SwapChain->getSwapChainExtent() };
+        vkCmdSetViewport(m_commandBuffers[imageIndex], 0, 1, &viewport);
+        vkCmdSetScissor(m_commandBuffers[imageIndex], 0, 1, &scissor);
+
 
         m_pipeline->Bind(m_commandBuffers[imageIndex]); //Bind Graphics pipeline
         m_model->Bind(m_commandBuffers[imageIndex]); //Bind model that contains vertex data
