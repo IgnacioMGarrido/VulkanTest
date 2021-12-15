@@ -8,7 +8,7 @@ namespace VE
 
     struct Transform2dComponent 
     {
-        glm::vec2 m_translataion{};
+        glm::vec2 m_translation{};
         glm::vec2 m_scale{1.f,1.f};
         float m_rotation;
 
@@ -21,6 +21,13 @@ namespace VE
             return rotMatrix * scaleMat;
         }
     };
+
+    struct RigidBody2dComponent
+    {
+        glm::vec2 velocity;
+        float mass{1.0f};
+    };
+
     class VEGameObject
     {
     public:
@@ -45,6 +52,7 @@ namespace VE
         std::shared_ptr<VEModel> m_model{};
         glm::vec3 m_color{};
         Transform2dComponent m_transformComponent{};
+        RigidBody2dComponent m_rigidBodyComponent{};
 
     private:
         VEGameObject(id_t objId) : m_id(objId) {};

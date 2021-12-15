@@ -61,7 +61,7 @@ namespace VE
         {
             obj.m_transformComponent.m_rotation = glm::mod(obj.m_transformComponent.m_rotation + 0.0001f, glm::two_pi<float>());
             SimplePushConstantData push{};
-            push.offset = obj.m_transformComponent.m_translataion;
+            push.offset = obj.m_transformComponent.m_translation;
             push.color = obj.m_color;
             push.transform = obj.m_transformComponent.mat2();
 
