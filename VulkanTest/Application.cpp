@@ -84,15 +84,21 @@ namespace VE
     void Application::Run()
     {
         VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass() };
+        VECamera camera{};
 
         while (!m_levelWindow.ShouldClose()) 
         {
             m_levelWindow.RetreivePollEvents();
+
+            float aspect = m_renderer.GetAspectRatio();
+            //camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+
             if (auto commandBuffer = m_renderer.BeginFrame()) 
             {
                 //This way we can add multiple render passes (Shadows, reflection, etc)
                 m_renderer.BeginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.RenderGameObjects(commandBuffer, m_gameObjects);
+                simpleRenderSystem.RenderGameObjects(commandBuffer, m_gameObjects, camera);
                 m_renderer.EndSwapChainRenderPass(commandBuffer);
                 m_renderer.EndFrame();
             }
@@ -106,9 +112,25 @@ namespace VE
 
         auto cube = VEGameObject::CreateGameObject();
         cube.m_model = veModel;
-        cube.m_transformComponent.translation = { 0.f, 0.f, .5f };
+        cube.m_transformComponent.translation = { 0.f, 0.f, 2.5f };
         cube.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
 
+        auto cube_2 = VEGameObject::CreateGameObject();
+        cube_2.m_model = veModel;
+        cube_2.m_transformComponent.translation = { -0.3f, -0.4f, 1.5f };
+        cube_2.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
+        cube_2.m_transformComponent.rotation = {glm::radians(45.f), glm::radians(-4.f), glm::radians(32.f) };
+
+        auto cube_3 = VEGameObject::CreateGameObject();
+        cube_3.m_model = veModel;
+        cube_3.m_transformComponent.translation = { 1.1f, 2.f, 5.5f };
+        cube_3.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
+        cube_3.m_transformComponent.rotation = { glm::radians(32.f), glm::radians(-45.f), glm::radians(15.f) };
+
         m_gameObjects.push_back(std::move(cube));
+        m_gameObjects.push_back(std::move(cube_2));
+        m_gameObjects.push_back(std::move(cube_3));
+
+
     }
 }

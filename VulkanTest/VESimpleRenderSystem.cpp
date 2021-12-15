@@ -53,7 +53,7 @@ namespace VE
         m_pipeline = std::make_unique<VEPipeline>(m_device, "Shaders/basic_shader.vert.spv", "Shaders/basic_shader.frag.spv", pipelineConfig);
     }
 
-    void VESimpleRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects)
+    void VESimpleRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects, const VECamera& camera)
     {
         m_pipeline->Bind(commandBuffer); //Bind Pipeline
         for (auto& obj : gameObjects)
@@ -65,7 +65,7 @@ namespace VE
 
             SimplePushConstantData push{};
             push.color = obj.m_color;
-            push.transform = obj.m_transformComponent.mat4();
+            push.transform = camera.GetProjection() * obj.m_transformComponent.mat4(); //Might want to do in the vertex Shader
 
             vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.m_model->Bind(commandBuffer); //Bind model that contains vertex data

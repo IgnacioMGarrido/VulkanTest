@@ -1,6 +1,7 @@
 #pragma once
 #include "VEPipeline.h"
 #include "VEdevice.h"
+#include "VECamera.h"
 #include "VEModel.h"
 #include "VEGameObject.h"
 #include <memory>
@@ -15,7 +16,7 @@ namespace VE
         VESimpleRenderSystem(const VESimpleRenderSystem&) = delete;
         VESimpleRenderSystem& operator=(const VESimpleRenderSystem&) = delete;
 
-        void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects);
+        void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects, const VECamera& camera);
 
     private:
         void CreatePipelineLayout();
