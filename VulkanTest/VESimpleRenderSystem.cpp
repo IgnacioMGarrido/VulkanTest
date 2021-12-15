@@ -6,8 +6,7 @@ namespace VE
 {
     struct SimplePushConstantData //Temporary
     {
-        glm::mat2 transform{ 1.f };
-        glm::vec2 offset;
+        glm::mat4 transform{ 1.f };
         alignas(16) glm::vec3 color;
     };
 
@@ -59,11 +58,10 @@ namespace VE
         m_pipeline->Bind(commandBuffer); //Bind Pipeline
         for (auto& obj : gameObjects)
         {
-            obj.m_transformComponent.m_rotation = glm::mod(obj.m_transformComponent.m_rotation + 0.0001f, glm::two_pi<float>());
+            obj.m_transformComponent.rotation.y = glm::mod(obj.m_transformComponent.rotation.y + 0.0001f, glm::two_pi<float>());
             SimplePushConstantData push{};
-            push.offset = obj.m_transformComponent.m_translataion;
             push.color = obj.m_color;
-            push.transform = obj.m_transformComponent.mat2();
+            push.transform = obj.m_transformComponent.mat4();
 
             vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.m_model->Bind(commandBuffer); //Bind model that contains vertex data
