@@ -62,7 +62,7 @@ namespace VE
             m_window.ResetWindowResizedFlag();
             RecreateSwapChain();
         }
-        if (result != VK_SUCCESS)
+        else if (result != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to Submit command Buffers!");
         }
@@ -74,13 +74,6 @@ namespace VE
     {
         assert(m_isFrameStarted && "Can't call BeginSwapChainRenderPass while frame is not in progress");
         assert(commandBuffer == GetCurrentCommandBuffer() && "Cannot Begin render pass on command buffer from a different frame");
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to begin recording Command Buffer!");
-        }
 
         //Configure render Pass.
         VkRenderPassBeginInfo renderPassInfo{};
