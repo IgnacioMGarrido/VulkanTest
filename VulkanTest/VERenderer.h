@@ -30,7 +30,13 @@ namespace VE
         VkCommandBuffer GetCurrentCommandBuffer() const 
         { 
             assert(m_isFrameStarted && "Cabbot get commandBuffer when frame is in progress");
-            return m_commandBuffers[m_currentImageIndex];
+            return m_commandBuffers[m_currentframeIndex];
+        }
+
+        int GetFrameIndex() const 
+        {
+            assert(m_isFrameStarted && "Cabbot get commandBuffer when frame is in progress"); 
+            return m_currentframeIndex;
         }
 
     private:
@@ -46,6 +52,7 @@ namespace VE
 
         uint32_t m_currentImageIndex;
         bool m_isFrameStarted;
+        int m_currentframeIndex;
     };
 
 }

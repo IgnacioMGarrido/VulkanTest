@@ -68,6 +68,7 @@ namespace VE
         }
 
         m_isFrameStarted = false;
+        m_currentframeIndex = (m_currentframeIndex + 1) % VESwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
     void VERenderer::BeginSwapChainRenderPass(VkCommandBuffer commandBuffer)
@@ -113,7 +114,6 @@ namespace VE
         assert(m_isFrameStarted && "Can't call EndSwapChainRenderPass while frame is not in progress");
         assert(commandBuffer == GetCurrentCommandBuffer() && "Cannot End render pass on command buffer from a different frame");
         vkCmdEndRenderPass(commandBuffer);
-
     }
 
     void VERenderer::RecreateSwapChain()
@@ -134,18 +134,20 @@ namespace VE
         }
         else
         {
-            m_SwapChain = std::make_unique<VESwapChain>(m_device, extent, std::move(m_SwapChain));
-            if (m_SwapChain->imageCount() != m_commandBuffers.size())
+            std::shared_ptr<VESwapChain> oldSwapChain = std::move(m_SwapChain);
+            m_SwapChain = std::make_unique<VESwapChain>(m_device, extent, oldSwapChain);
+
+            if (!oldSwapChain->compareSwapFormat(*m_SwapChain.get())) 
             {
-                FreeCommandBuffers();
-                CreateCommandBuffers();
+                throw std::runtime_error("SwapChain image or depth format has changed!");
             }
         }
     }
 
     void VERenderer::CreateCommandBuffers()
     {
-        m_commandBuffers.resize(m_SwapChain->imageCount());
+        m_commandBuffers.resize(VESwapChain::MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
