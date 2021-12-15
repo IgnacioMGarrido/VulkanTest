@@ -56,6 +56,8 @@ namespace VE
     void VESimpleRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects, const VECamera& camera)
     {
         m_pipeline->Bind(commandBuffer); //Bind Pipeline
+        auto projectionView = camera.GetProjection() * camera.GetView();
+
         for (auto& obj : gameObjects)
         {
             obj.m_transformComponent.rotation.y = glm::mod(obj.m_transformComponent.rotation.y + 0.0001f, glm::two_pi<float>());
@@ -65,7 +67,7 @@ namespace VE
 
             SimplePushConstantData push{};
             push.color = obj.m_color;
-            push.transform = camera.GetProjection() * obj.m_transformComponent.mat4(); //Might want to do in the vertex Shader
+            push.transform = projectionView * obj.m_transformComponent.mat4(); //Might want to do in the vertex Shader
 
             vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.m_model->Bind(commandBuffer); //Bind model that contains vertex data
