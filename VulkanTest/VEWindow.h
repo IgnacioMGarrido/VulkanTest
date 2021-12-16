@@ -16,6 +16,10 @@ namespace VE
         bool ShouldClose();
         bool WasWindowResized() { return m_frameBufferResized; };
         void ResetWindowResizedFlag() { m_frameBufferResized = false; }
+
+        //TODO: Abstract this so no dependencies on GLFW.
+        GLFWwindow* GetGLFWwindow() const { return m_window; }
+
         void RetreivePollEvents();
         void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
         VkExtent2D GetExtent();

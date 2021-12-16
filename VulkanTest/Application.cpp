@@ -3,14 +3,15 @@
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
-
+#include "Input.h"
 #include <stdexcept>
 #include <array>
+#include <chrono>
 #include "VESimpleRenderSystem.h"
 
 namespace VE 
 {
-
+    constexpr float MAX_FRAME_TIME = 0.1f;
     std::unique_ptr<VEModel> createCubeModel(VEDevice& device, glm::vec3 offset) 
     {
         std::vector<VEModel::Vertex> vertices
@@ -88,13 +89,27 @@ namespace VE
         //camera.SetViewDirection(glm::vec3{0.f}, glm::vec3(0.5f, 0.1f, 1.f));
         camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
+        auto cameraGameObject = VEGameObject::CreateGameObject();
+        KeyboardMovementInput cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+
         while (!m_levelWindow.ShouldClose()) 
         {
             m_levelWindow.RetreivePollEvents();
 
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            frameTime = glm::min(frameTime, MAX_FRAME_TIME);
+
+            cameraController.MoveInPlaneXZ(m_levelWindow.GetGLFWwindow(), frameTime, cameraGameObject);
+            camera.SetViewYXZ(cameraGameObject.m_transformComponent.translation, cameraGameObject.m_transformComponent.rotation);
+
             float aspect = m_renderer.GetAspectRatio();
             //camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
             if (auto commandBuffer = m_renderer.BeginFrame()) 
             {

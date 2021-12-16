@@ -60,11 +60,6 @@ namespace VE
 
         for (auto& obj : gameObjects)
         {
-            obj.m_transformComponent.rotation.y = glm::mod(obj.m_transformComponent.rotation.y + 0.0001f, glm::two_pi<float>());
-            obj.m_transformComponent.rotation.z = glm::mod(obj.m_transformComponent.rotation.z + 0.00005f, glm::two_pi<float>());
-            obj.m_transformComponent.rotation.x = glm::mod(obj.m_transformComponent.rotation.x + 0.0001f, glm::two_pi<float>());
-
-
             SimplePushConstantData push{};
             push.color = obj.m_color;
             push.transform = projectionView * obj.m_transformComponent.mat4(); //Might want to do in the vertex Shader
