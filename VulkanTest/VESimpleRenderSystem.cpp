@@ -53,10 +53,10 @@ namespace VE
         m_pipeline = std::make_unique<VEPipeline>(m_device, "Shaders/basic_shader.vert.spv", "Shaders/basic_shader.frag.spv", pipelineConfig);
     }
 
-    void VESimpleRenderSystem::RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<VEGameObject>& gameObjects, const VECamera& camera)
+    void VESimpleRenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::vector<VEGameObject>& gameObjects)
     {
-        m_pipeline->Bind(commandBuffer); //Bind Pipeline
-        auto projectionView = camera.GetProjection() * camera.GetView();
+        m_pipeline->Bind(frameInfo.commandBuffer); //Bind Pipeline
+        auto projectionView = frameInfo.camera.GetProjection() * frameInfo.camera.GetView();
 
         for (auto& obj : gameObjects)
         {
@@ -65,10 +65,10 @@ namespace VE
             push.transform = projectionView * modelMatrix; //Might want to do in the vertex Shader
             push.normalMatrix = obj.m_transformComponent.normalMatrix();
 
-            vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-            obj.m_model->Bind(commandBuffer); //Bind model that contains vertex data
+            vkCmdPushConstants(frameInfo.commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+            obj.m_model->Bind(frameInfo.commandBuffer); //Bind model that contains vertex data
 
-            obj.m_model->Draw(commandBuffer); //Draw
+            obj.m_model->Draw(frameInfo.commandBuffer); //Draw
         }
     }
 }

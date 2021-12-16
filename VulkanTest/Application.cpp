@@ -6,11 +6,20 @@
 #include "Input.h"
 #include <stdexcept>
 #include <array>
+#include <numeric>
 #include <chrono>
 #include "VESimpleRenderSystem.h"
+#include "VEBuffer.h"
 
 namespace VE
 {
+
+    struct GlobalUbo 
+    {
+        alignas(16) glm::mat4 projectionView{ 1.f };
+        alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
+    };
+    
     constexpr float MAX_FRAME_TIME = 0.1f;
 
     Application::Application()
@@ -25,6 +34,21 @@ namespace VE
 
     void Application::Run()
     {
+        auto minOffsetAlignment = std::lcm(
+            m_device.properties.limits.minUniformBufferOffsetAlignment,
+            m_device.properties.limits.nonCoherentAtomSize);
+        VEBuffer globalUboBuffer = 
+        {
+            m_device,
+            sizeof(GlobalUbo),
+            VESwapChain::MAX_FRAMES_IN_FLIGHT,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            minOffsetAlignment //min required alignment in bytes
+        };
+
+        globalUboBuffer.map();
+
         VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass() };
         VECamera camera{};
         //camera.SetViewDirection(glm::vec3{0.f}, glm::vec3(0.5f, 0.1f, 1.f));
@@ -54,9 +78,25 @@ namespace VE
 
             if (auto commandBuffer = m_renderer.BeginFrame())
             {
+                int frameIndex = m_renderer.GetFrameIndex();
+                FrameInfo frameInfo
+                {
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera
+                };
+
+                //Update
+                GlobalUbo ubo{};
+                ubo.projectionView = camera.GetProjection() * camera.GetView();
+                globalUboBuffer.writeToIndex(&ubo, frameIndex);
+                globalUboBuffer.flushIndex(frameIndex);
+
+                //Render
                 //This way we can add multiple render passes (Shadows, reflection, etc)
                 m_renderer.BeginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.RenderGameObjects(commandBuffer, m_gameObjects, camera);
+                simpleRenderSystem.RenderGameObjects(frameInfo, m_gameObjects);
                 m_renderer.EndSwapChainRenderPass(commandBuffer);
                 m_renderer.EndFrame();
             }
