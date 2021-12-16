@@ -34,20 +34,20 @@ namespace VE
 
     void Application::Run()
     {
-        auto minOffsetAlignment = std::lcm(
-            m_device.properties.limits.minUniformBufferOffsetAlignment,
-            m_device.properties.limits.nonCoherentAtomSize);
-        VEBuffer globalUboBuffer = 
-        {
-            m_device,
-            sizeof(GlobalUbo),
-            VESwapChain::MAX_FRAMES_IN_FLIGHT,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            minOffsetAlignment //min required alignment in bytes
-        };
+        std::vector<std::unique_ptr<VEBuffer>> uboBuffers(VESwapChain::MAX_FRAMES_IN_FLIGHT);
 
-        globalUboBuffer.map();
+        for (int i = 0; i < uboBuffers.size(); ++i) 
+        {
+            uboBuffers[i] = std::make_unique<VEBuffer>(
+                m_device,
+                sizeof(GlobalUbo),
+                1,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                );
+
+            uboBuffers[i]->map();
+        }
 
         VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass() };
         VECamera camera{};
@@ -90,8 +90,8 @@ namespace VE
                 //Update
                 GlobalUbo ubo{};
                 ubo.projectionView = camera.GetProjection() * camera.GetView();
-                globalUboBuffer.writeToIndex(&ubo, frameIndex);
-                globalUboBuffer.flushIndex(frameIndex);
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
 
                 //Render
                 //This way we can add multiple render passes (Shadows, reflection, etc)
