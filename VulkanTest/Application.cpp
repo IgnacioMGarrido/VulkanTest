@@ -93,7 +93,7 @@ namespace VE
         auto gameObject_4 = VEGameObject::CreateGameObject();
         gameObject_4.m_model = veModel_4;
         gameObject_4.m_transformComponent.translation = { 2.1f, 2.f, 6.5f };
-        gameObject_4.m_transformComponent.scale = { 2.5f, 2.5f, 2.5f };
+        gameObject_4.m_transformComponent.scale = { 2.5f, 1.5f, 2.5f };
         gameObject_4.m_transformComponent.rotation = { glm::radians(15.f), glm::radians(-3.f), glm::radians(45.f) };
 
         m_gameObjects.push_back(std::move(gameObject_1));
