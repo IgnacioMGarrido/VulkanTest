@@ -180,16 +180,26 @@ namespace VE
     
     std::vector<VkVertexInputAttributeDescription> VEModel::Vertex::GetAttributesDescriptions()
     {
-        std::vector<VkVertexInputAttributeDescription> attributesDescriptions(2);
-        attributesDescriptions[0].binding = 0;
+        std::vector<VkVertexInputAttributeDescription> attributesDescriptions(4);
         attributesDescriptions[0].location = 0;
+        attributesDescriptions[0].binding = 0;
         attributesDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributesDescriptions[0].offset = offsetof(Vertex, position);
 
-        attributesDescriptions[1].binding = 0;
         attributesDescriptions[1].location = 1;
+        attributesDescriptions[1].binding = 0;
         attributesDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributesDescriptions[1].offset = offsetof(Vertex, color);
+
+        attributesDescriptions[2].location = 2;
+        attributesDescriptions[2].binding = 0;
+        attributesDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributesDescriptions[2].offset = offsetof(Vertex, normal);
+
+        attributesDescriptions[3].location = 3;
+        attributesDescriptions[3].binding = 0;
+        attributesDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+        attributesDescriptions[3].offset = offsetof(Vertex, uv);
 
         return attributesDescriptions;
     }
@@ -224,23 +234,13 @@ namespace VE
                          attrib.vertices[3 * index.vertex_index + 2]
                     };
 
-                    auto colorIndex = 3 * index.vertex_index + 2;
+                    vertex.color =
+                    {
+                         attrib.colors[3 * index.vertex_index + 0],
+                         attrib.colors[3 * index.vertex_index + 1],
+                         attrib.colors[3 * index.vertex_index + 2]
+                    };
 
-                    if (colorIndex < attrib.colors.size()) // we support colors 
-                    {
-                        vertex.color =
-                        {
-                            attrib.colors[colorIndex - 2],
-                            attrib.colors[colorIndex - 1],
-                            attrib.colors[colorIndex - 0]
-                        };
-                    }
-                    else // set default color of the model 
-                    {
-                        //vertex.color = { 1.f, .20f, .87f }; // Bright Green
-                        //vertex.color = { 1.0f, 0.4f, 1.0f }; //Ultra Pink
-                        vertex.color = { 1.f, 1.f, 1.f };  // White
-                    }
                 }
 
                 if (index.normal_index >= 0)

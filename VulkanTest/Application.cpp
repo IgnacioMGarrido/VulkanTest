@@ -76,6 +76,7 @@ namespace VE
         gameObject_1.m_model = veModel;
         gameObject_1.m_transformComponent.translation = { 0.f, 0.f, 2.5f };
         gameObject_1.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
+        gameObject_1.m_transformComponent.rotation = { glm::radians(180.f), glm::radians(0.f), glm::radians(0.f) };
 
         auto gameObject_2 = VEGameObject::CreateGameObject();
         gameObject_2.m_model = veModel_2;
