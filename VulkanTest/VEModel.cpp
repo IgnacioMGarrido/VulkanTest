@@ -57,20 +57,40 @@ namespace VE
 
         //number of bytes required per vertex * vertex Count = Total number of bytes required by the vertex buffer to store the vertices
         VkDeviceSize bufferSize = sizeof(vertices[0]) * m_vertexCount;
+
+
+        //Create a staging Buffer in the device to whcih we can copy the data from the CPU
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+
         m_device.createBuffer(
             bufferSize,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, //Accesible from the CPU (Host)
-            m_vertexBuffer,
-            m_vertexBufferMemory);
+            stagingBuffer,
+            stagingBufferMemory);
 
         void* data;
-        if (vkMapMemory(m_device.device(), m_vertexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS) 
+        if (vkMapMemory(m_device.device(), stagingBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
         {
             throw std::runtime_error("Couldn't map vertex memory");
         }
         memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(m_device.device(), m_vertexBufferMemory);
+        vkUnmapMemory(m_device.device(), stagingBufferMemory);
+
+        m_device.createBuffer(
+            bufferSize,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, //Can be used as a destination of a transfer command
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, //Accesible ONLY by the device (GPU)
+            m_vertexBuffer,
+            m_vertexBufferMemory);
+
+        //Copy data from the staging buffer to the VertexBuffer
+        m_device.copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+
+        //Free memory of the staging buffer
+        vkDestroyBuffer(m_device.device(), stagingBuffer, nullptr);
+        vkFreeMemory(m_device.device(), stagingBufferMemory, nullptr);
     }
 
     void VEModel::CreateIndexBuffers(const std::vector<uint32_t>& indices)
@@ -82,22 +102,40 @@ namespace VE
         {
             return;
         }
-        //number of bytes required per vertex * vertex Count = Total number of bytes required by the vertex buffer to store the vertices
+        //number of bytes required per index * index Count = Total number of bytes required by the index buffer to store the vertices
         VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
+        //Create a staging Buffer in the device to whcih we can copy the data from the CPU
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+
         m_device.createBuffer(
             bufferSize,
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, //Accesible from the CPU (Host)
-            m_indexBuffer,
-            m_indexBufferMemory);
+            stagingBuffer,
+            stagingBufferMemory);
 
         void* data;
-        if (vkMapMemory(m_device.device(), m_indexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+        if (vkMapMemory(m_device.device(), stagingBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
         {
             throw std::runtime_error("Couldn't map index memory");
         }
         memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(m_device.device(), m_indexBufferMemory);
+        vkUnmapMemory(m_device.device(), stagingBufferMemory);
+
+        m_device.createBuffer(
+            bufferSize,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, //Can be used as a destination of a transfer command
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, //Accesible ONLY by the device (GPU)
+            m_indexBuffer,
+            m_indexBufferMemory);
+
+        //Copy data from the staging buffer to the IndexBuffer
+        m_device.copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+
+        //Free memory of the staging buffer
+        vkDestroyBuffer(m_device.device(), stagingBuffer, nullptr);
+        vkFreeMemory(m_device.device(), stagingBufferMemory, nullptr);
     }
 
     std::vector<VkVertexInputBindingDescription> VEModel::Vertex::GetBindingDescriptions()
