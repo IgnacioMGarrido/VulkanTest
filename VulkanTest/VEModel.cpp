@@ -6,16 +6,23 @@
 
 namespace VE 
 {
-    VEModel::VEModel(VEDevice& device, const std::vector<Vertex>& vertices)
+    VEModel::VEModel(VEDevice& device, const VEModel::Builder& builder)
         :m_device(device)
     {
-        CreateVertexBuffers(vertices);
+        CreateVertexBuffers(builder.vertices);
+        CreateIndexBuffers(builder.indices);
     }
 
     VEModel::~VEModel()
     {
         vkDestroyBuffer(m_device.device(), m_vertexBuffer, nullptr);
         vkFreeMemory(m_device.device(), m_vertexBufferMemory, nullptr);
+
+        if (m_hasIndexBuffer) 
+        {
+            vkDestroyBuffer(m_device.device(), m_indexBuffer, nullptr);
+            vkFreeMemory(m_device.device(), m_indexBufferMemory, nullptr);
+        }
     }
 
     void VEModel::Bind(VkCommandBuffer commandBuffer)
@@ -24,11 +31,23 @@ namespace VE
         VkDeviceSize offsets[] = {0};
 
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+
+        if (m_hasIndexBuffer) 
+        {
+            vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        }
     }
 
     void VEModel::Draw(VkCommandBuffer commandBuffer)
     {
-        vkCmdDraw(commandBuffer, m_vertexCount, 1, 0, 0);
+        if (m_hasIndexBuffer) 
+        {
+            vkCmdDrawIndexed(commandBuffer, m_indexCount, 1, 0, 0, 0);
+        }
+        else 
+        {
+            vkCmdDraw(commandBuffer, m_vertexCount, 1, 0, 0);
+        }
     }
 
     void VEModel::CreateVertexBuffers(const std::vector<Vertex>& vertices)
@@ -52,6 +71,33 @@ namespace VE
         }
         memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
         vkUnmapMemory(m_device.device(), m_vertexBufferMemory);
+    }
+
+    void VEModel::CreateIndexBuffers(const std::vector<uint32_t>& indices)
+    {
+        m_indexCount = static_cast<uint32_t>(indices.size());
+        m_hasIndexBuffer = m_indexCount > 0;
+
+        if (!m_hasIndexBuffer) 
+        {
+            return;
+        }
+        //number of bytes required per vertex * vertex Count = Total number of bytes required by the vertex buffer to store the vertices
+        VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
+        m_device.createBuffer(
+            bufferSize,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, //Accesible from the CPU (Host)
+            m_indexBuffer,
+            m_indexBufferMemory);
+
+        void* data;
+        if (vkMapMemory(m_device.device(), m_indexBufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Couldn't map index memory");
+        }
+        memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+        vkUnmapMemory(m_device.device(), m_indexBufferMemory);
     }
 
     std::vector<VkVertexInputBindingDescription> VEModel::Vertex::GetBindingDescriptions()

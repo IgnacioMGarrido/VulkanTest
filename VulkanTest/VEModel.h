@@ -21,7 +21,13 @@ namespace VE {
 
         };
 
-        VEModel(VEDevice& device, const std::vector<Vertex>& vertices);
+        struct Builder 
+        {
+            std::vector<Vertex> vertices{};
+            std::vector<uint32_t> indices{};
+        };
+
+        VEModel(VEDevice& device, const VEModel::Builder& builder);
         ~VEModel();
 
         VEModel(const VEModel&) = delete;
@@ -32,12 +38,20 @@ namespace VE {
 
     private:
         void CreateVertexBuffers(const std::vector<Vertex>& vertices);
+        void CreateIndexBuffers(const std::vector<uint32_t>& indices);
 
     private:
         VEDevice& m_device;
+
         VkBuffer m_vertexBuffer;
         VkDeviceMemory m_vertexBufferMemory;
         uint32_t m_vertexCount;
+
+        VkBuffer m_indexBuffer;
+        VkDeviceMemory m_indexBufferMemory;
+        uint32_t m_indexCount;
+
+        bool m_hasIndexBuffer = false;
     };
 }
 
