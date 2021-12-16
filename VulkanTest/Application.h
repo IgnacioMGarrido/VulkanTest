@@ -4,6 +4,7 @@
 #include "VERenderer.h"
 #include "VEModel.h"
 #include "VEGameObject.h"
+#include "VEDescriptors.h"
 #include <memory>
 #include <vector>
 namespace VE 
@@ -23,10 +24,11 @@ namespace VE
         void LoadGameObjects();
 
     private:
-        VEwindow m_levelWindow{WIDTH,HEIGHT};
+        VEwindow m_levelWindow{ WIDTH, HEIGHT };
         VEDevice m_device{ m_levelWindow };
         VERenderer m_renderer{ m_levelWindow, m_device };
         VkPipelineLayout m_pipelineLayout;
+        std::unique_ptr<VEDescriptorPool> m_globalDescriptorPool{};
         std::vector<VEGameObject> m_gameObjects;
     };
 

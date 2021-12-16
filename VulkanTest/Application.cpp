@@ -24,6 +24,11 @@ namespace VE
 
     Application::Application()
     {
+        m_globalDescriptorPool = VEDescriptorPool::Builder(m_device)
+            .setMaxSets(VESwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VESwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VESwapChain::MAX_FRAMES_IN_FLIGHT)
+            .build();
         LoadGameObjects();
     }
 
@@ -49,7 +54,20 @@ namespace VE
             uboBuffers[i]->map();
         }
 
-        VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass() };
+        auto globalSetLayout = VEDescriptorSetLayout::Builder(m_device)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+            .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(VESwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); ++i) 
+        {
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            VEDescriptorWriter(*globalSetLayout, *m_globalDescriptorPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(globalDescriptorSets[i]);
+        }
+
+        VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         VECamera camera{};
         //camera.SetViewDirection(glm::vec3{0.f}, glm::vec3(0.5f, 0.1f, 1.f));
         camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -84,7 +102,8 @@ namespace VE
                     frameIndex,
                     frameTime,
                     commandBuffer,
-                    camera
+                    camera,
+                    globalDescriptorSets[frameIndex]
                 };
 
                 //Update

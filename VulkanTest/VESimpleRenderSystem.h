@@ -12,7 +12,7 @@ namespace VE
     class VESimpleRenderSystem
     {
     public:
-        VESimpleRenderSystem(VEDevice& device, VkRenderPass renderPass);
+        VESimpleRenderSystem(VEDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~VESimpleRenderSystem();
         VESimpleRenderSystem(const VESimpleRenderSystem&) = delete;
         VESimpleRenderSystem& operator=(const VESimpleRenderSystem&) = delete;
@@ -20,7 +20,7 @@ namespace VE
         void RenderGameObjects(FrameInfo& frameInfo, std::vector<VEGameObject>& gameObjects);
 
     private:
-        void CreatePipelineLayout();
+        void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void CreatePipeline(VkRenderPass renderPass);
 
     private:
