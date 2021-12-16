@@ -12,56 +12,6 @@
 namespace VE
 {
     constexpr float MAX_FRAME_TIME = 0.1f;
-    std::unique_ptr<VEModel> createCubeModel(VEDevice& device, glm::vec3 offset)
-    {
-        VEModel::Builder modelBuilder{};
-
-        modelBuilder.vertices =
-        {
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-            
-            // right face (yellow)
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-            
-            // top face (orange, remember y axis points down)
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            
-            // bottom face (red)
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            
-            // nose face (blue)
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            
-            // tail face (green)
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        };
-        for (auto& v : modelBuilder.vertices) {
-            v.position += offset;
-        }
-
-        modelBuilder.indices = { 0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
-                          12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21 };
-
-        return std::make_unique<VEModel>(device, modelBuilder);
-    }
 
     Application::Application()
     {
@@ -116,28 +66,40 @@ namespace VE
 
     void Application::LoadGameObjects()
     {
-        std::shared_ptr<VEModel> veModel = createCubeModel(m_device, { 0.f, 0.f, 0.f });
+        std::shared_ptr<VEModel> veModel = VEModel::CreateModelFromFile(m_device, "models/colored_cube.obj");
+        std::shared_ptr<VEModel> veModel_2 = VEModel::CreateModelFromFile(m_device, "models/cube.obj");
+        std::shared_ptr<VEModel> veModel_3 = VEModel::CreateModelFromFile(m_device, "models/flat_vase.obj");
+        std::shared_ptr<VEModel> veModel_4 = VEModel::CreateModelFromFile(m_device, "models/smooth_vase.obj");
 
-        auto cube = VEGameObject::CreateGameObject();
-        cube.m_model = veModel;
-        cube.m_transformComponent.translation = { 0.f, 0.f, 2.5f };
-        cube.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
 
-        auto cube_2 = VEGameObject::CreateGameObject();
-        cube_2.m_model = veModel;
-        cube_2.m_transformComponent.translation = { -0.3f, -0.4f, 1.5f };
-        cube_2.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
-        cube_2.m_transformComponent.rotation = { glm::radians(45.f), glm::radians(-4.f), glm::radians(32.f) };
+        auto gameObject_1 = VEGameObject::CreateGameObject();
+        gameObject_1.m_model = veModel;
+        gameObject_1.m_transformComponent.translation = { 0.f, 0.f, 2.5f };
+        gameObject_1.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
 
-        auto cube_3 = VEGameObject::CreateGameObject();
-        cube_3.m_model = veModel;
-        cube_3.m_transformComponent.translation = { 1.1f, 2.f, 5.5f };
-        cube_3.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
-        cube_3.m_transformComponent.rotation = { glm::radians(32.f), glm::radians(-45.f), glm::radians(15.f) };
+        auto gameObject_2 = VEGameObject::CreateGameObject();
+        gameObject_2.m_model = veModel_2;
+        gameObject_2.m_transformComponent.translation = { -2.3f, -0.4f, 3.5f };
+        gameObject_2.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
+        gameObject_2.m_transformComponent.rotation = { glm::radians(45.f), glm::radians(-4.f), glm::radians(32.f) };
 
-        m_gameObjects.push_back(std::move(cube));
-        m_gameObjects.push_back(std::move(cube_2));
-        m_gameObjects.push_back(std::move(cube_3));
+        auto gameObject_3 = VEGameObject::CreateGameObject();
+        gameObject_3.m_model = veModel_3;
+        gameObject_3.m_transformComponent.translation = { 1.1f, 2.f, 5.5f };
+        //gameObject_3.m_transformComponent.scale = { 0.5f, 0.5f, .5f };
+        gameObject_3.m_transformComponent.rotation = { glm::radians(32.f), glm::radians(-45.f), glm::radians(15.f) };
+
+        auto gameObject_4 = VEGameObject::CreateGameObject();
+        gameObject_4.m_model = veModel_4;
+        gameObject_4.m_transformComponent.translation = { 2.1f, 2.f, 6.5f };
+        gameObject_4.m_transformComponent.scale = { 2.5f, 2.5f, 2.5f };
+        gameObject_4.m_transformComponent.rotation = { glm::radians(15.f), glm::radians(-3.f), glm::radians(45.f) };
+
+        m_gameObjects.push_back(std::move(gameObject_1));
+        m_gameObjects.push_back(std::move(gameObject_2));
+        m_gameObjects.push_back(std::move(gameObject_3));
+        m_gameObjects.push_back(std::move(gameObject_4));
+
 
 
     }
