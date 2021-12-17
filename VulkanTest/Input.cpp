@@ -40,4 +40,19 @@ namespace VE
         }
     }
 
+    void KeyboardMovementInput::MoveLeftRight(GLFWwindow* window, float dt, VEGameObject& gameObject)
+    {
+        float yaw = gameObject.m_transformComponent.rotation.y;
+        const glm::vec3 forwardDir{ sin(yaw), 0.f, cos(yaw) };
+        const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
+        glm::vec3 moveDir{ 0.f };
+        if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS) moveDir += rightDir;
+        if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS) moveDir -= rightDir;
+        if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
+        {
+            gameObject.m_transformComponent.translation += m_moveSpeed * dt * glm::normalize(moveDir);
+        }
+    }
+
+
 }

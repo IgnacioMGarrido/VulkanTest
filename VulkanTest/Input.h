@@ -22,7 +22,7 @@ namespace VE
         };
 
         void MoveInPlaneXZ(GLFWwindow* window, float dt, VEGameObject& gameObject);
-
+        void MoveLeftRight(GLFWwindow* window, float dt, VEGameObject& gameObject);
         KeyMappings keys{};
         float m_moveSpeed{ 3.f };
         float m_lookSpeed{ 1.5f };
