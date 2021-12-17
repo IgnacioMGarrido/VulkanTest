@@ -19,20 +19,14 @@ namespace VE
                 if (gameObject.GetId() != other.GetId()
                     && gameObject.m_colliderComponent.Collided(other.m_colliderComponent)) {
 
-                    if (gameObject.GetId() == 0) // paddle game Object 
-                    {
-
-                    }
-                    else if (gameObject.GetId() == 1) // ball game Object 
+                    if (gameObject.GetId() == 1) // ball game Object 
                     {
                         srand(time(NULL));
-                        std::cout << "Ball Rebound!" << std::endl;
                         gameObject.m_rigidBodyComponent.velocity.y = -gameObject.m_rigidBodyComponent.velocity.y;
                         gameObject.m_rigidBodyComponent.velocity.x = static_cast<float>(rand() % (10 - (-10) + 1) + (-10)) / 10.f;
                     }
-                    else if(gameObject.GetId() > 5)//is a block
+                    else if(gameObject.GetId() > 5)//Block Game Object
                     {
-                        std::cout << "Block Destroyed!" << std::endl;
                         gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), gameObject), gameObjects.end());
                     }
                 }
@@ -43,6 +37,9 @@ namespace VE
             { // ball game Object 
                 gameObject.m_transformComponent.translation.y += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.y;
                 gameObject.m_transformComponent.translation.x += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.x;
+                gameObject.m_transformComponent.rotation.x += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.x * 4;
+                gameObject.m_transformComponent.rotation.y += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.x * 2;
+                gameObject.m_transformComponent.rotation.z += frameInfo.frameTime * -gameObject.m_rigidBodyComponent.velocity.x * 3;
 
             }
         }
