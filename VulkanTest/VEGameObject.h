@@ -19,6 +19,61 @@ namespace VE
         glm::mat4 mat4();
         glm::mat3 normalMatrix();
     };
+
+    struct ColliderComponent 
+    {
+        float x;
+        float y;
+        float width;
+        float height;
+
+        ColliderComponent()
+            : x(0.f)
+            , y(0.f)
+            , width(0.f)
+            , height(0.f)
+        {};
+
+        bool operator==(const ColliderComponent& rhs) const 
+        {
+            return x == rhs.x && y == rhs.y && width == rhs.width && height == rhs.height;
+        }
+        
+        void SetupCollider(const TransformComponent& transformComponent) 
+        {
+            width = transformComponent.scale.x + 0.5f;
+            height = transformComponent.scale.y;
+            x = transformComponent.translation.x - width / 2;
+            y = transformComponent.translation.y - height / 2;
+        }
+
+        bool Collided(const ColliderComponent& other) 
+        {
+            if (other == *this) 
+            {
+                return false;
+            }
+            if (x < other.x + other.width &&
+                x + width > other.x &&
+                y < other.y + other.height &&
+                height + y > other.y) {
+                // collision detected!
+                return true;
+            }
+            else {
+                // no collision
+                return false;
+            }
+        }
+
+    };
+
+    struct RigidBody2dComponent
+    {
+        glm::vec2 velocity;
+        float mass{ 1.0f };
+    };
+
     class VEGameObject
     {
     public:
@@ -43,6 +98,8 @@ namespace VE
         std::shared_ptr<VEModel> m_model{};
         glm::vec3 m_color{};
         TransformComponent m_transformComponent{};
+        ColliderComponent m_colliderComponent{};
+        RigidBody2dComponent m_rigidBodyComponent{};
 
     private:
         VEGameObject(id_t objId) : m_id(objId) {};

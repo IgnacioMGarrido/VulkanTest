@@ -10,6 +10,7 @@
 #include <chrono>
 #include "VESimpleRenderSystem.h"
 #include "VEBuffer.h"
+#include "VESimplePhysicsSystem.h"
 
 namespace VE
 {
@@ -68,6 +69,7 @@ namespace VE
         }
 
         VESimpleRenderSystem simpleRenderSystem{ m_device, m_renderer.GetSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+        VESimplePhysicsSystem simplePhysicsSystem{};
         VECamera camera{};
         //camera.SetViewDirection(glm::vec3{0.f}, glm::vec3(0.5f, 0.1f, 1.f));
         auto cameraGameObject = VEGameObject::CreateGameObject();
@@ -114,6 +116,8 @@ namespace VE
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
+                simplePhysicsSystem.SimulateGameObjects(frameInfo, m_gameObjects);
+
                 //Render
                 //This way we can add multiple render passes (Shadows, reflection, etc)
                 m_renderer.BeginSwapChainRenderPass(commandBuffer);
@@ -138,13 +142,18 @@ namespace VE
         gameObject_1.m_transformComponent.translation = { 0.f, 0.f, 2.5f };
         gameObject_1.m_transformComponent.scale = { 1.f, 0.2f, .1f };
         gameObject_1.m_transformComponent.rotation = { glm::radians(180.f), glm::radians(0.f), glm::radians(0.f) };
+        
+        gameObject_1.m_colliderComponent.SetupCollider(gameObject_1.m_transformComponent);
+
 
         auto gameObject_2 = VEGameObject::CreateGameObject();
         gameObject_2.m_model = veModel_2;
-        gameObject_2.m_transformComponent.translation = { 0.f, -2.f, 2.5f };
+        gameObject_2.m_transformComponent.translation = { .5f, -2.f, 2.5f };
         gameObject_2.m_transformComponent.scale = { 0.2f, 0.2f, 0.2f };
         gameObject_2.m_transformComponent.rotation = { glm::radians(180.f), glm::radians(0.f), glm::radians(0.f) };
+        gameObject_2.m_rigidBodyComponent.velocity = { 0.f, -2.f };
 
+        gameObject_2.m_colliderComponent.SetupCollider(gameObject_2.m_transformComponent);
 
         m_gameObjects.push_back(std::move(gameObject_1));
         m_gameObjects.push_back(std::move(gameObject_2));
@@ -158,6 +167,8 @@ namespace VE
                 blockGameObject.m_transformComponent.translation = { -5.5f + row * 1.0f, -6.f + col * 0.5f, 2.5f };
                 blockGameObject.m_transformComponent.scale = { .30f, 0.15f, .30f };
                 blockGameObject.m_transformComponent.rotation = { glm::radians(180.f), glm::radians(0.f), glm::radians(0.f) };
+
+                blockGameObject.m_colliderComponent.SetupCollider(blockGameObject.m_transformComponent);
 
                 m_gameObjects.push_back(std::move(blockGameObject));
             }
