@@ -1,8 +1,13 @@
 #include "VESimplePhysicsSystem.h"
 #include <iostream>
-
+#include <stdlib.h>
+#include <time.h>
 namespace VE
 {
+    VESimplePhysicsSystem::VESimplePhysicsSystem()
+    {
+        srand(time(NULL));
+    }
     void VESimplePhysicsSystem::SimulateGameObjects(FrameInfo& frameInfo, std::vector<VEGameObject>& gameObjects)
     {
 
@@ -20,14 +25,16 @@ namespace VE
                     }
                     else if (gameObject.GetId() == 1) // ball game Object 
                     {
+                        srand(time(NULL));
                         std::cout << "Ball Rebound!" << std::endl;
-                        gameObject.m_rigidBodyComponent.velocity = -gameObject.m_rigidBodyComponent.velocity;
+                        gameObject.m_rigidBodyComponent.velocity.y = -gameObject.m_rigidBodyComponent.velocity.y;
+                        gameObject.m_rigidBodyComponent.velocity.x = static_cast<float>(rand() % (10 - (-10) + 1) + (-10)) / 10.f;
                     }
-                    //else //is a block
-                    //{
-                    //    std::cout << "Block Destroyed!" << std::endl;
-                    //    gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), gameObject), gameObjects.end());
-                    //}
+                    else if(gameObject.GetId() > 5)//is a block
+                    {
+                        std::cout << "Block Destroyed!" << std::endl;
+                        gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), gameObject), gameObjects.end());
+                    }
                 }
             }
 
@@ -35,6 +42,8 @@ namespace VE
             if (gameObject.GetId() == 1) 
             { // ball game Object 
                 gameObject.m_transformComponent.translation.y += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.y;
+                gameObject.m_transformComponent.translation.x += frameInfo.frameTime * gameObject.m_rigidBodyComponent.velocity.x;
+
             }
         }
 

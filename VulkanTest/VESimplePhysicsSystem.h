@@ -9,6 +9,7 @@ namespace VE
     class VESimplePhysicsSystem
     {
     public:
+        VESimplePhysicsSystem();
         void SimulateGameObjects(FrameInfo& frameInfo, std::vector<VEGameObject>& gameObjects);
     };
 }

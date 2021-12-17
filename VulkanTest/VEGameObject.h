@@ -28,8 +28,8 @@ namespace VE
         float height;
 
         ColliderComponent()
-            : x(0.f)
-            , y(0.f)
+            : x(-10000.f)
+            , y(-10000.f)
             , width(0.f)
             , height(0.f)
         {};
@@ -84,7 +84,7 @@ namespace VE
 
         VEGameObject(VEGameObject&&) = default;
         VEGameObject& operator=(VEGameObject&&) = default;
-
+        bool operator==(const VEGameObject& rhs) const { return m_id == rhs.m_id; }
 
         static VEGameObject CreateGameObject() 
         {
